@@ -1,4 +1,5 @@
-# assistente_whatssapp
+# Assistente para Whatssapp.
+
 Fala aí, galera! Vou explicar pra vocês o arquivo assistente.html que eu criei pro nosso projeto. É uma parada bem simples, mas já dá pra ter uma ideia do que a gente tá querendo fazer com esse assistente virtual pro WhatsApp.
 
 O arquivo é bem direto ao ponto. Quando você abrir, vai ver o seguinte:
