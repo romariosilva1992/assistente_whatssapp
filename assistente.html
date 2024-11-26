@@ -1,0 +1,235 @@
+<html><head><base href="." /><meta charset="utf-8" />
+<title>WhatsApp Business Assistant with AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+  --whatsapp-green: #25D366;
+  --whatsapp-dark: #075E54;
+  --chat-bg: #ECE5DD;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background: #fafafa;
+}
+
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header {
+  background: var(--whatsapp-dark);
+  color: white;
+  padding: 20px;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.chat-container {
+  background: var(--chat-bg);
+  padding: 20px;
+  height: 500px;
+  overflow-y: auto;
+}
+
+.message {
+  max-width: 80%;
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+  position: relative;
+  animation: messageIn 0.3s ease-out;
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user {
+  background: white;
+  margin-left: auto;
+}
+
+.assistant {
+  background: #DCF8C6;
+  margin-right: auto;
+}
+
+.input-area {
+  padding: 20px;
+  background: white;
+  border-top: 1px solid #eee;
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  outline: none;
+}
+
+button {
+  background: var(--whatsapp-green);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+button:hover {
+  background: #128C7E;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 5px;
+  padding: 10px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 20px;
+  width: fit-content;
+  margin: 10px 0;
+  opacity: 0;
+}
+
+.typing-indicator.active {
+  opacity: 1;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #90949c;
+  border-radius: 50%;
+  animation: typing 1.4s infinite;
+}
+
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="20" fill="#25D366"/>
+      <path d="M28 12L16 24L12 20" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Assistente WhatsApp</h1>
+  </div>
+  
+  <div class="chat-container" id="chatContainer">
+    <div class="message assistant">
+      Olá! Sou o assistente virtual. Como posso ajudar você hoje?
+    </div>
+    <div class="typing-indicator">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Digite sua mensagem...">
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
+</div>
+
+<script>
+const knowledgeBase = {
+  "horario": "Estamos abertos de segunda a sexta, das 9h às 18h, e aos sábados das 9h às 13h.",
+  "produtos": "Oferecemos uma ampla variedade de produtos. Posso te ajudar a encontrar algo específico?",
+  "pagamento": "Aceitamos cartões de crédito, débito, PIX e dinheiro.",
+  "entrega": "Realizamos entregas em toda a cidade. O prazo médio é de 24-48 horas.",
+  "default": "Desculpe, não entendi sua pergunta. Pode reformular ou escolher um dos tópicos: horário, produtos, pagamento ou entrega?"
+};
+
+function addMessage(message, isUser = false) {
+  const chatContainer = document.getElementById('chatContainer');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+  messageDiv.textContent = message;
+  chatContainer.appendChild(messageDiv);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function showTypingIndicator() {
+  const indicator = document.querySelector('.typing-indicator');
+  indicator.classList.add('active');
+  return indicator;
+}
+
+function hideTypingIndicator(indicator) {
+  indicator.classList.remove('active');
+}
+
+function processMessage(message) {
+  message = message.toLowerCase();
+  let response = knowledgeBase.default;
+  
+  for (let key in knowledgeBase) {
+    if (message.includes(key)) {
+      response = knowledgeBase[key];
+      break;
+    }
+  }
+  
+  return response;
+}
+
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const message = input.value.trim();
+  
+  if (message) {
+    addMessage(message, true);
+    input.value = '';
+    
+    const indicator = showTypingIndicator();
+    
+    // Simula processamento da IA
+    setTimeout(() => {
+      hideTypingIndicator(indicator);
+      const response = processMessage(message);
+      addMessage(response);
+    }, 1500);
+  }
+}
+
+// Permite enviar mensagem com Enter
+document.getElementById('userInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    sendMessage();
+  }
+});
+</script>
+</body></html>
